@@ -4,14 +4,9 @@
 #include <thrust/host_vector.h>
 #include "shape.h"
 
-struct Tensor
+class Tensor
 {
-    Shape shape;
-
-    mutable thrust::host_vector<float> h_data;
-    thrust::device_vector<float> d_data;
-    thrust::device_vector<float> d_grad;
-
+public:
     Tensor() = default;
     Tensor(const Shape &s);
     Tensor(std::initializer_list<int> dims);
@@ -24,9 +19,20 @@ struct Tensor
 
     void generateRand();
 
-    void copyToDevice();
-    void copyToHost() const;
+    void toDevice();
+    void toHost() const;
+
+    const float* data() const;
+    const float* grad() const;
 
     void printData() const;
     void printGrad() const;
+
+    mutable thrust::host_vector<float> h_data;
+
+private:
+    Shape shape;
+
+    thrust::device_vector<float> d_data;
+    thrust::device_vector<float> d_grad;
 };

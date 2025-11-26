@@ -21,18 +21,28 @@ void Tensor::generateRand()
     });
 }
 
-void Tensor::copyToDevice()
+void Tensor::toDevice()
 {
     if (d_data.size() != h_data.size())
         allocDevice();
     d_data = h_data;
 }
 
-void Tensor::copyToHost() const
+void Tensor::toHost() const
 {
     if (h_data.size() != d_data.size())
         allocHost();
     h_data = d_data;
+}
+
+const float* Tensor::data() const
+{
+    return thrust::raw_pointer_cast(d_data.data());
+}
+
+const float* Tensor::grad() const
+{
+    return thrust::raw_pointer_cast(d_grad.data());
 }
 
 void Tensor::printData() const
