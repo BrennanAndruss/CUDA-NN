@@ -21,21 +21,21 @@ void backwardSigmoid(const float *da, const float *a, float *dZ, int size)
 
 Sigmoid::Sigmoid(int size) :
     Layer(size, size),
-    activations(size),
+    activations({size}),
     gridSize((size + BLOCK_SIZE - 1) / BLOCK_SIZE)
 {
     activations.allocDevice();
 }
 
-Tensor Sigmoid::forward(const Tensor &in)
+Tensor Sigmoid::forward(Tensor &in)
 {
     forwardSigmoid<<<gridSize, BLOCK_SIZE>>>(in.data(), activations.data(), inSize);
     return activations;
 }
 
-Tensor Sigmoid::backward(const Tensor &gradOut)
+Tensor Sigmoid::backward(Tensor &gradOut)
 {
-    Tensor gradIn(inSize);
+    Tensor gradIn({inSize});
     gradIn.allocDevice();
 
     backwardSigmoid<<<gridSize, BLOCK_SIZE>>>(
@@ -43,4 +43,12 @@ Tensor Sigmoid::backward(const Tensor &gradOut)
     );
     
     return gradIn;
+}
+
+std::vector<Tensor*> Sigmoid::getParams() { return {}; }
+
+void Sigmoid::save(std::ostream &out) const
+{
+    out << "Sigmoid\n";
+    out << inSize << "\n";
 }

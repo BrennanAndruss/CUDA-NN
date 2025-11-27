@@ -78,7 +78,7 @@ void backwardLinear(const float *dz, const float *aPrev, const float *W,
 }
 
 Linear::Linear(int inSize, int outSize) :
-    inSize(inSize), outSize(outSize),
+    Layer(inSize, outSize),
     weights({outSize, inSize}), biases({outSize}),
     activationsPrev({inSize}), zValues({outSize}),
     gridDim((inSize + TILE_SIZE - 1) / TILE_SIZE, (outSize + TILE_SIZE - 1) / TILE_SIZE) 
@@ -91,7 +91,7 @@ Linear::Linear(int inSize, int outSize) :
     biases.allocGrad();
 }
 
-Tensor Linear::forward(const Tensor &in)
+Tensor Linear::forward(Tensor &in)
 {
     activationsPrev = in;
 
@@ -102,7 +102,7 @@ Tensor Linear::forward(const Tensor &in)
     return zValues;
 }
 
-Tensor Linear::backward(const Tensor &gradOut)
+Tensor Linear::backward(Tensor &gradOut)
 {
     Tensor gradIn({inSize});
     gradIn.allocGrad();
@@ -115,4 +115,17 @@ Tensor Linear::backward(const Tensor &gradOut)
 
     // Return activation gradient to propagate to previous input layer
     return gradIn;
+}
+
+std::vector<Tensor*> Linear::getParams()
+{
+    return std::vector<Tensor*>{&weights, &biases};
+}
+
+void Linear::save(std::ostream &out) const
+{
+    out << "Linear\n";
+    out << inSize << " " << outSize << "\n";
+    weights.save(out);
+    biases.save(out);
 }

@@ -2,6 +2,7 @@
 
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
+#include <fstream>
 #include "shape.h"
 
 class Tensor
@@ -22,8 +23,10 @@ public:
     void toDevice();
     void toHost() const;
 
-    const float* data() const;
-    const float* grad() const;
+    float* data();
+    float* grad();
+
+    void save(std::ostream &out) const;
 
     void printData() const;
     void printGrad() const;

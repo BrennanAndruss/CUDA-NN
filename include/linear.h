@@ -7,8 +7,12 @@ class Linear : public Layer
 public:
     Linear(int inSize, int outSize);
 
-    Tensor forward(const Tensor &in) override;
-    Tensor backward(const Tensor &gradOut) override;
+    Tensor forward(Tensor &in) override;
+    Tensor backward(Tensor &gradOut) override;
+
+    std::vector<Tensor*> getParams() override;
+
+    void save(std::ostream &out) const override;
 
     Tensor weights;
     Tensor biases;

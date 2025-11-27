@@ -13,3 +13,7 @@ file(GLOB_RECURSE SOURCES
 include_directories("include")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+target_include_directories(${PROJECT_NAME} PRIVATE 
+    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+)

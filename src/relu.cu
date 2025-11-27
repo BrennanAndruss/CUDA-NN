@@ -20,21 +20,21 @@ void backwardReLU(const float *dA, const float *Z, float *dZ, int size)
 
 ReLU::ReLU(int size) :
     Layer(size, size),
-    activations(size),
+    activations({size}),
     gridSize((size + BLOCK_SIZE - 1) / BLOCK_SIZE)
 {
     activations.allocDevice();
 }
 
-Tensor ReLU::forward(const Tensor &in)
+Tensor ReLU::forward(Tensor &in)
 {
     forwardReLU<<<gridSize, BLOCK_SIZE>>>(in.data(), activations.data(), inSize);
     return activations;
 }
 
-Tensor ReLU::backward(const Tensor &gradOut)
+Tensor ReLU::backward(Tensor &gradOut)
 {
-    Tensor gradIn(inSize);
+    Tensor gradIn({inSize});
     gradIn.allocDevice();
 
     backwardReLU<<<gridSize, BLOCK_SIZE>>>(
@@ -42,4 +42,12 @@ Tensor ReLU::backward(const Tensor &gradOut)
     );
     
     return gradIn;
+}
+
+std::vector<Tensor*> ReLU::getParams() { return {}; }
+
+void ReLU::save(std::ostream &out) const
+{
+    out << "ReLU\n";
+    out << inSize << "\n";
 }

@@ -7,8 +7,12 @@ class Sigmoid : public Layer
 public:
     Sigmoid(int size);
 
-    Tensor forward(const Tensor &input) override;
-    Tensor backward(const Tensor &gradOut) override;
+    Tensor forward(Tensor &input) override;
+    Tensor backward(Tensor &gradOut) override;
+
+    std::vector<Tensor*> getParams() override;
+
+    void save(std::ostream &out) const override;
 
     Tensor activations;
 

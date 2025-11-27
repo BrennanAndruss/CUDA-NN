@@ -35,14 +35,30 @@ void Tensor::toHost() const
     h_data = d_data;
 }
 
-const float* Tensor::data() const
+float* Tensor::data()
 {
     return thrust::raw_pointer_cast(d_data.data());
 }
 
-const float* Tensor::grad() const
+float* Tensor::grad()
 {
     return thrust::raw_pointer_cast(d_grad.data());
+}
+
+void Tensor::save(std::ostream &out) const
+{
+    thrust::host_vector<float> h_temp = d_data;
+    for (size_t i = 0; i < shape.size(); i++)
+    {
+        out << shape[i] << " ";
+    }
+    out << "\n";
+
+    for (size_t i = 0; i < h_temp.size(); i++)
+    {
+        out << h_temp[i] << " ";
+    }
+    out << "\n";
 }
 
 void Tensor::printData() const
