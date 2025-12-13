@@ -1,4 +1,7 @@
 #include "sigmoid.h"
+#include "common.h"
+
+namespace nn {
 
 __global__
 void forwardSigmoid(const float *Z, float *a, int size)
@@ -22,7 +25,7 @@ void backwardSigmoid(const float *da, const float *a, float *dZ, int size)
 Sigmoid::Sigmoid(int size) :
     Layer(size, size),
     activations({size}),
-    gridSize((size + BLOCK_SIZE - 1) / BLOCK_SIZE)
+    gridSize(CEIL_DIV(size, BLOCK_SIZE))
 {
     activations.allocDevice();
 }
@@ -52,3 +55,5 @@ void Sigmoid::save(std::ostream &out) const
     out << "Sigmoid\n";
     out << inSize << "\n";
 }
+
+} // namespace nn

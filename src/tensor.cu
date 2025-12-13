@@ -3,11 +3,15 @@
 #include <thrust/generate.h>
 #include <iostream>
 
+namespace nn {
+
 Tensor::Tensor(const Shape& shape) : shape(shape), h_data(), d_data(), d_grad() {}
 
 Tensor::Tensor(std::initializer_list<int> dims) : shape(dims), h_data(), d_data(), d_grad() {}
 
 int Tensor::numel() const { return shape.numel(); }
+
+const Shape& Tensor::getShape() const { return shape; }
 
 void Tensor::allocDevice() { d_data.resize(numel()); }
 void Tensor::allocGrad() { d_grad.resize(numel()); }
@@ -80,3 +84,5 @@ void Tensor::printGrad() const
     }
     std::cout << "\n";
 }
+
+} // namespace nn

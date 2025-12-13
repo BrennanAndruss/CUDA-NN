@@ -5,37 +5,41 @@
 #include <fstream>
 #include "shape.h"
 
-class Tensor
+namespace nn 
 {
-public:
-    Tensor() = default;
-    Tensor(const Shape &s);
-    Tensor(std::initializer_list<int> dims);
+    class Tensor
+    {
+    public:
+        Tensor() = default;
+        Tensor(const Shape &s);
+        Tensor(std::initializer_list<int> dims);
 
-    int numel() const;
+        int numel() const;
+        const Shape& getShape() const;
 
-    void allocDevice();
-    void allocGrad();
-    void allocHost() const;
+        void allocDevice();
+        void allocGrad();
+        void allocHost() const;
 
-    void generateRand();
+        void generateRand();
 
-    void toDevice();
-    void toHost() const;
+        void toDevice();
+        void toHost() const;
 
-    float* data();
-    float* grad();
+        float* data();
+        float* grad();
 
-    void save(std::ostream &out) const;
+        void save(std::ostream &out) const;
 
-    void printData() const;
-    void printGrad() const;
+        void printData() const;
+        void printGrad() const;
 
-    mutable thrust::host_vector<float> h_data;
+        mutable thrust::host_vector<float> h_data;
 
-private:
-    Shape shape;
+    private:
+        Shape shape;
 
-    thrust::device_vector<float> d_data;
-    thrust::device_vector<float> d_grad;
-};
+        thrust::device_vector<float> d_data;
+        thrust::device_vector<float> d_grad;
+    };
+} // namespace nn

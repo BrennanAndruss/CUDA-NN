@@ -1,4 +1,7 @@
 #include "linear.h"
+#include "common.h"
+
+namespace nn {
 
 __global__
 void forwardLinear(const float *a, const float *W, const float *b, float *z, int inSize, int outSize)
@@ -16,17 +19,21 @@ void forwardLinear(const float *a, const float *W, const float *b, float *z, int
     {
         // Compute weighted sum
         float sum = 0.0f;
-        for (int p = 0; p < inSize / TILE_SIZE; p++)
+        for (int p = 0; p < inSize; p += TILE_SIZE)
         {
-            // Collaboratively load tiles into shared memory
-            s_W[ty][tx] = W[row * inSize + (p * TILE_SIZE + tx)];
+            // Collaboratively load vectors into shared memory
+            s_W[ty][tx] = W[row * inSize + (p + tx)];
             if (tx == 0)
-                s_x[ty] = a[p * TILE_SIZE + ty];
+            {
+                s_x[ty] = a[p + ty];
+            }
             __syncthreads();
 
             // Dot product between row of W and tile of x
             for (int k = 0; k < TILE_SIZE; k++)
+            {
                 sum += s_W[ty][k] * s_x[k];
+            }
             __syncthreads();
         }
 
@@ -46,34 +53,38 @@ void backwardLinear(const float *dz, const float *aPrev, const float *W,
 
     // Allocate tiles in shared memory
     __shared__ float s_WT[TILE_SIZE][TILE_SIZE];
-    __shared__ float s_dZ[TILE_SIZE];
+    __shared__ float s_dz[TILE_SIZE];
     
     if (row < outSize && col < inSize)
     {
         // Compute aPrev gradient
         float gradaPrev = 0.0f;
-        for (int p = 0; p < outSize / TILE_SIZE; p++)
+        for (int p = 0; p < outSize; p += TILE_SIZE)
         {
-            // Collaboratively load tiles into shared memory, transposing W
-            s_WT[ty][tx] = W[(p * TILE_SIZE + ty) * inSize + col];
+            // Collaboratively load vectors into shared memory
+            s_WT[ty][tx] = W[(p + ty) * inSize + col];
             if (tx == 0)
-                s_dZ[ty] = dz[p * TILE_SIZE + ty];            
+            {
+                s_dz[ty] = dz[p + ty];
+            }
             __syncthreads();
 
             // Dot product row of W^T and tile of dz
+            // row of W^T corresponds to column of W
             for (int k = 0; k < TILE_SIZE; k++)
             {
-                gradaPrev += s_WT[k][tx] * s_dZ[ty];
+                gradaPrev += s_WT[ty][k] * s_dz[k];
             }
         }
 
-        // Compute bias and weight gradients
+        daPrev[col] = gradaPrev;
+
+        // Compute weight and bias gradients
         dW[row * inSize + col] = dz[row] * aPrev[col];
         if (col == 0)
+        {
             db[row] = dz[row];
-
-        // Store computed aPrev gradient
-        daPrev[col] = gradaPrev;
+        }
     }
 }
 
@@ -81,7 +92,7 @@ Linear::Linear(int inSize, int outSize) :
     Layer(inSize, outSize),
     weights({outSize, inSize}), biases({outSize}),
     activationsPrev({inSize}), zValues({outSize}),
-    gridDim((inSize + TILE_SIZE - 1) / TILE_SIZE, (outSize + TILE_SIZE - 1) / TILE_SIZE) 
+    gridDim(CEIL_DIV(inSize, TILE_SIZE), CEIL_DIV(outSize, TILE_SIZE))
 {
     weights.allocDevice();
     biases.allocDevice();
@@ -129,3 +140,5 @@ void Linear::save(std::ostream &out) const
     weights.save(out);
     biases.save(out);
 }
+
+} // namespace nn

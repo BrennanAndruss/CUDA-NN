@@ -2,24 +2,27 @@
 
 #include "layer.h"
 
-class Linear : public Layer
+namespace nn 
 {
-public:
-    Linear(int inSize, int outSize);
+    class Linear : public Layer
+    {
+    public:
+        Linear(int inSize, int outSize);
 
-    Tensor forward(Tensor &in) override;
-    Tensor backward(Tensor &gradOut) override;
+        Tensor forward(Tensor &in) override;
+        Tensor backward(Tensor &gradOut) override;
 
-    std::vector<Tensor*> getParams() override;
+        std::vector<Tensor*> getParams() override;
 
-    void save(std::ostream &out) const override;
+        void save(std::ostream &out) const override;
 
-    Tensor weights;
-    Tensor biases;
+        Tensor weights;
+        Tensor biases;
 
-private:
-    Tensor activationsPrev;
-    Tensor zValues;
+    private:
+        Tensor activationsPrev;
+        Tensor zValues;
 
-    dim3 gridDim;
-};
+        dim3 gridDim;
+    };
+} // namespace nn

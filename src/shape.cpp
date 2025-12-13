@@ -1,5 +1,7 @@
 #include "shape.h"
 
+namespace nn {
+
 Shape::Shape(const std::vector<int> &dimensions) : dims(dimensions) {}
 
 Shape::Shape(std::initializer_list<int> dimensions) : dims(dimensions) {}
@@ -17,3 +19,5 @@ int Shape::numel() const
     }
     return n;
 }
+
+} // namespace nn

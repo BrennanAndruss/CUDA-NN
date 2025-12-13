@@ -1,4 +1,7 @@
 #include "relu.h"
+#include "common.h"
+
+namespace nn {
 
 __global__
 void forwardReLU(const float *Z, float *a, int size)
@@ -21,7 +24,7 @@ void backwardReLU(const float *dA, const float *Z, float *dZ, int size)
 ReLU::ReLU(int size) :
     Layer(size, size),
     activations({size}),
-    gridSize((size + BLOCK_SIZE - 1) / BLOCK_SIZE)
+    gridSize(CEIL_DIV(size, BLOCK_SIZE))
 {
     activations.allocDevice();
 }
@@ -51,3 +54,5 @@ void ReLU::save(std::ostream &out) const
     out << "ReLU\n";
     out << inSize << "\n";
 }
+
+} // namespace nn

@@ -1,5 +1,7 @@
 #include "network.h"
 
+namespace nn {
+
 void Network::addLayer(Layer *layer)
 {
     layers.push_back(layer);
@@ -55,3 +57,5 @@ void Network::save(const std::string &filepath) const
     
     out.close();
 }
+
+} // namespace nn
