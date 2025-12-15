@@ -2,13 +2,14 @@
 #include "sigmoid.h"
 #include "relu.h"
 #include "mse.h"
+#include "sgd.h"
 #include "network.h"
 
-int main(int argc, char *argv[])
+void trainSimple()
 {
-    // Initialize network
     nn::Network net;
-    
+
+    std::cout << "Creating network...\n";
     net.addLayer(new nn::Linear(2, 2));
     net.addLayer(new nn::Sigmoid(2));
     net.addLayer(new nn::Linear(2, 2));
@@ -17,8 +18,9 @@ int main(int argc, char *argv[])
     net.addLayer(new nn::Sigmoid(1));
 
     nn::MSELoss lossFn;
+    nn::SGDOptimizer optimizer(net.getParams(), 0.1f);
 
-    // Create dummy input and output
+    // Create and initialize input and output
     nn::Tensor input({2});
     input.allocHost();
     input.h_data[0] = 1.0f;
@@ -27,15 +29,29 @@ int main(int argc, char *argv[])
     nn::Tensor output({1});
     output.allocHost();
     output.h_data[0] = 1.0f;
-    
-    // Run network
-    nn::Tensor pred = net.forward(input);
-    float loss = lossFn.lossFn(pred, output);
-    std::cout << "Loss: " << loss << "\n";
 
-    // Save the network architecture and parameters
-    std::cout << "Saving network to ../network_model.txt\n";
-    net.save("../network_model.txt");
+    // Run training loop
+    std::cout << "Training simple model\n";
+    for (int i = 0; i < 50; i++)
+    {
+        std::cout << "Iteration " << (i + 1) << "/50\n";
+
+        nn::Tensor pred = net.forward(input);
+        float loss = lossFn.lossFn(pred, output);
+        std::cout << " Loss: " << loss << "\n";
+
+        nn::Tensor gradLoss = lossFn.backward();
+        net.backward(gradLoss);
+        optimizer.step();
+    }
+
+    std::cout << "Saving network model...\n";
+    net.save("simple_model.txt");
+}
+
+int main(int argc, char *argv[])
+{
+    trainSimple();
 
     return 0;
 }

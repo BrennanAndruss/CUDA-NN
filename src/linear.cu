@@ -38,7 +38,10 @@ void forwardLinear(const float *a, const float *W, const float *b, float *z, int
         }
 
         // Add bias to weighted sum
-        z[row] = sum + b[row];
+        if (col == 0)
+        {
+            z[row] = sum + b[row];
+        }
     } 
 }
 

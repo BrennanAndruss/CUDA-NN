@@ -4,21 +4,21 @@
 namespace nn {
 
 __global__
-void forwardReLU(const float *Z, float *a, int size)
+void forwardReLU(const float *z, float *a, int size)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid >= size) return;
 
-    a[tid] = fmaxf(0.0f, Z[tid]);
+    a[tid] = fmaxf(0.0f, z[tid]);
 }
 
 __global__
-void backwardReLU(const float *dA, const float *Z, float *dZ, int size)
+void backwardReLU(const float *dA, const float *z, float *dz, int size)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid >= size) return;
 
-    dZ[tid] = (Z[tid] > 0.0f) ? dA[tid] : 0.0f;
+    dz[tid] = (z[tid] > 0.0f) ? dA[tid] : 0.0f;
 }
 
 ReLU::ReLU(int size) :
@@ -38,10 +38,10 @@ Tensor ReLU::forward(Tensor &in)
 Tensor ReLU::backward(Tensor &gradOut)
 {
     Tensor gradIn({inSize});
-    gradIn.allocDevice();
+    gradIn.allocGrad();
 
     backwardReLU<<<gridSize, BLOCK_SIZE>>>(
-        gradOut.data(), activations.data(), gradIn.data(), inSize
+        gradOut.grad(), activations.data(), gradIn.grad(), inSize
     );
     
     return gradIn;

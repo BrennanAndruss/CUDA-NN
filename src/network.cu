@@ -27,7 +27,6 @@ Tensor Network::forward(const Tensor &in) const
 void Network::backward(const Tensor &gradLoss) const
 {
     Tensor gradOut = gradLoss;
-    gradOut.toDevice();
     Tensor gradIn;
 
     for (auto it = layers.rbegin(); it != layers.rend(); it++)

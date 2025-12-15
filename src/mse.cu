@@ -6,7 +6,7 @@ namespace nn {
 __global__
 void forwardMSE(const float *pred, const float *target, float *loss, int size)
 {
-    __shared__ float s_loss[TILE_SIZE];
+    __shared__ float s_loss[BLOCK_SIZE];
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid >= size) return;
 
@@ -18,7 +18,7 @@ void forwardMSE(const float *pred, const float *target, float *loss, int size)
     // Reduce within block
     for (int i = blockDim.x / 2; i > 0; i /= 2)
     {
-        if (threadIdx.x < i)
+        if (threadIdx.x < i && (tid + i) < size)
         {
             s_loss[threadIdx.x] += s_loss[threadIdx.x + i];
         }

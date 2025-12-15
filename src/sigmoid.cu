@@ -4,22 +4,22 @@
 namespace nn {
 
 __global__
-void forwardSigmoid(const float *Z, float *a, int size)
+void forwardSigmoid(const float *z, float *a, int size)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid >= size) return;
 
-    a[tid] = 1.0f / (1.0f + expf(-Z[tid]));
+    a[tid] = 1.0f / (1.0f + expf(-z[tid]));
 }
 
 __global__
-void backwardSigmoid(const float *da, const float *a, float *dZ, int size)
+void backwardSigmoid(const float *da, const float *a, float *dz, int size)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid >= size) return;
     
     float sigmoid = a[tid];
-    dZ[tid] = da[tid] * sigmoid * (1.0f - sigmoid);
+    dz[tid] = da[tid] * sigmoid * (1.0f - sigmoid);
 }
 
 Sigmoid::Sigmoid(int size) :
@@ -39,10 +39,10 @@ Tensor Sigmoid::forward(Tensor &in)
 Tensor Sigmoid::backward(Tensor &gradOut)
 {
     Tensor gradIn({inSize});
-    gradIn.allocDevice();
+    gradIn.allocGrad();
 
     backwardSigmoid<<<gridSize, BLOCK_SIZE>>>(
-        gradOut.data(), activations.data(), gradIn.data(), inSize
+        gradOut.grad(), activations.data(), gradIn.grad(), inSize
     );
     
     return gradIn;

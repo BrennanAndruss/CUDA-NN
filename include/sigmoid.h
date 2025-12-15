@@ -9,7 +9,7 @@ namespace nn
     public:
         Sigmoid(int size);
 
-        Tensor forward(Tensor &input) override;
+        Tensor forward(Tensor &in) override;
         Tensor backward(Tensor &gradOut) override;
 
         std::vector<Tensor*> getParams() override;
