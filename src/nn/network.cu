@@ -1,6 +1,25 @@
 #include "nn/network.h"
+#include <fstream>
 
 namespace nn {
+
+void Network::train()
+{
+    mode = Mode::Train;
+    for (Layer *layer : layers)
+    {
+        layer->setMode(Mode::Train);
+    }
+}
+
+void Network::eval()
+{
+    mode = Mode::Eval;
+    for (Layer *layer : layers)
+    {
+        layer->setMode(Mode::Eval);
+    }
+}
 
 void Network::addLayer(Layer *layer)
 {
