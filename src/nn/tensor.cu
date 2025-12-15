@@ -2,6 +2,7 @@
 
 #include <thrust/generate.h>
 #include <iostream>
+#include <random>
 
 namespace nn {
 
@@ -28,11 +29,22 @@ void Tensor::allocDevice() { d_data.resize(numel()); }
 void Tensor::allocGrad() { d_grad.resize(numel()); }
 void Tensor::allocHost() const { h_data.resize(numel()); }
 
-void Tensor::generateRand()
+void Tensor::generateRand(float factor)
 {
     allocHost();
-    thrust::generate(h_data.begin(), h_data.end(), []() {
-        return static_cast<float>(std::rand()) / RAND_MAX;
+    thrust::generate(h_data.begin(), h_data.end(), [factor]() {
+        return factor * static_cast<float>(std::rand()) / RAND_MAX;
+    });
+}
+
+void Tensor::generateKaiming(int fanIn, float factor)
+{
+    allocHost();
+    float stddev = factor * std::sqrt(2.0f / fanIn);
+    thrust::generate(h_data.begin(), h_data.end(), [stddev]() {
+        static std::default_random_engine generator;
+        static std::normal_distribution<float> dist(0.0f, stddev);
+        return dist(generator);
     });
 }
 

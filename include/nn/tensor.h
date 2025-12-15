@@ -24,7 +24,8 @@ namespace nn
         void allocGrad();
         void allocHost() const;
 
-        void generateRand();
+        void generateRand(float factor = 1.0f);
+        void generateKaiming(int fanIn, float factor = 1.0f);
 
         void toDevice();
         void toHost() const;

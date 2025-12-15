@@ -62,25 +62,34 @@ void backwardLinear(const float *dz, const float *aPrev, const float *W,
     {
         // Compute aPrev gradient
         float gradaPrev = 0.0f;
-        for (int p = 0; p < outSize; p += TILE_SIZE)
+        
+        for (int r = 0; r < outSize; r++)
         {
-            // Collaboratively load vectors into shared memory
-            s_WT[ty][tx] = W[(p + ty) * inSize + col];
-            if (tx == 0)
-            {
-                s_dz[ty] = dz[p + ty];
-            }
-            __syncthreads();
-
-            // Dot product row of W^T and tile of dz
-            // row of W^T corresponds to column of W
-            for (int k = 0; k < TILE_SIZE; k++)
-            {
-                gradaPrev += s_WT[ty][k] * s_dz[k];
-            }
+            gradaPrev += W[r * inSize + col] * dz[r];
         }
-
         daPrev[col] = gradaPrev;
+
+        // TODO: Fix tiled version
+        // for (int p = 0; p < outSize; p += TILE_SIZE)
+        // {
+        //     // Collaboratively load vectors into shared memory
+        //     s_WT[ty][tx] = W[(p + ty) * inSize + col];
+        //     if (tx == 0)
+        //     {
+        //         s_dz[ty] = dz[p + ty];
+        //     }
+        //     __syncthreads();
+
+        //     // Dot product row of W^T and tile of dz
+        //     // row of W^T corresponds to column of W
+        //     for (int k = 0; k < TILE_SIZE; k++)
+        //     {
+        //         gradaPrev += s_WT[ty][k] * s_dz[k];
+        //     }
+        //     __syncthreads();
+        // }
+
+        // daPrev[col] = gradaPrev;
 
         // Compute weight and bias gradients
         dW[row * inSize + col] = dz[row] * aPrev[col];
@@ -93,7 +102,7 @@ void backwardLinear(const float *dz, const float *aPrev, const float *W,
 
 Linear::Linear(int inSize, int outSize) :
     Layer(inSize, outSize),
-    weights({outSize, inSize}), biases({outSize}),
+    weights({inSize, outSize}), biases({outSize}),
     activationsPrev({inSize}), zValues({outSize}),
     gridDim(CEIL_DIV(inSize, TILE_SIZE), CEIL_DIV(outSize, TILE_SIZE))
 {
@@ -103,6 +112,11 @@ Linear::Linear(int inSize, int outSize) :
 
     weights.allocGrad();
     biases.allocGrad();
+
+    // Initialize weights
+    // TODO: Construct Linear with initializer parameter for weights
+    weights.generateKaiming(inSize);
+    weights.toDevice();
 }
 
 Tensor Linear::forward(Tensor &in)
