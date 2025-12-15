@@ -1,5 +1,5 @@
-#include "sigmoid.h"
-#include "common.h"
+#include "nn/sigmoid.h"
+#include "nn/common.h"
 
 namespace nn {
 

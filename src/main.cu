@@ -1,9 +1,9 @@
-#include "linear.h"
-#include "sigmoid.h"
-#include "relu.h"
-#include "mse.h"
-#include "sgd.h"
-#include "network.h"
+#include "nn/linear.h"
+#include "nn/sigmoid.h"
+#include "nn/relu.h"
+#include "nn/mse.h"
+#include "nn/sgd.h"
+#include "nn/network.h"
 
 void trainSimple()
 {

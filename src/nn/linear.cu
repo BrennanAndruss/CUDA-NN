@@ -1,5 +1,5 @@
-#include "linear.h"
-#include "common.h"
+#include "nn/linear.h"
+#include "nn/common.h"
 
 namespace nn {
 

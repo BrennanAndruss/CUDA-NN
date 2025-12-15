@@ -1,4 +1,4 @@
-#include "network.h"
+#include "nn/network.h"
 
 namespace nn {
 

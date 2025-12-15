@@ -1,5 +1,5 @@
-#include "sgd.h"
-#include "common.h"
+#include "nn/sgd.h"
+#include "nn/common.h"
 
 namespace nn {
 

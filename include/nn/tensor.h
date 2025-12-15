@@ -2,6 +2,7 @@
 
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
+#include <vector>
 #include <fstream>
 #include "shape.h"
 
@@ -13,6 +14,8 @@ namespace nn
         Tensor() = default;
         Tensor(const Shape &s);
         Tensor(std::initializer_list<int> dims);
+
+        static Tensor fromVector(const std::vector<float> &data);
 
         int numel() const;
         const Shape& getShape() const;

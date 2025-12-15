@@ -1,5 +1,5 @@
-#include "relu.h"
-#include "common.h"
+#include "nn/relu.h"
+#include "nn/common.h"
 
 namespace nn {
 

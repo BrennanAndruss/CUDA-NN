@@ -1,4 +1,4 @@
-#include "shape.h"
+#include "nn/shape.h"
 
 namespace nn {
 

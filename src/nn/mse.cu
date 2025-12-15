@@ -1,5 +1,5 @@
-#include "mse.h"
-#include "common.h"
+#include "nn/mse.h"
+#include "nn/common.h"
 
 namespace nn {
 

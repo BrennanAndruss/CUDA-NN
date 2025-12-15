@@ -1,13 +1,24 @@
-#include "tensor.h"
+#include "nn/tensor.h"
 
 #include <thrust/generate.h>
 #include <iostream>
 
 namespace nn {
 
-Tensor::Tensor(const Shape& shape) : shape(shape), h_data(), d_data(), d_grad() {}
+Tensor::Tensor(const Shape& shape) : 
+    shape(shape), h_data(), d_data(), d_grad() {}
 
-Tensor::Tensor(std::initializer_list<int> dims) : shape(dims), h_data(), d_data(), d_grad() {}
+Tensor::Tensor(std::initializer_list<int> dims) : 
+    shape(dims), h_data(), d_data(), d_grad() {}
+
+Tensor Tensor::fromVector(const std::vector<float> &data)
+{
+    Tensor t({static_cast<int>(data.size())});
+    t.allocHost();
+    t.h_data = data;
+
+    return t;
+}
 
 int Tensor::numel() const { return shape.numel(); }
 
